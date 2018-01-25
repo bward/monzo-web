@@ -1,8 +1,9 @@
-module Decoders exposing (accountsResponse)
+module Request.Account exposing (accountsResponse)
 
 import Json.Decode exposing (Decoder, string, int, field, list, andThen, map, fail, succeed)
 import Json.Decode.Pipeline exposing (decode, required)
-import Account exposing (..)
+import Data.Account exposing (..)
+import Request.Helpers exposing (stringToInt)
 
 
 account : Decoder Account
@@ -43,17 +44,3 @@ retailInfo =
 accountsResponse : Decoder (List Account)
 accountsResponse =
     field "accounts" (list account)
-
-
-stringToInt : Decoder Int
-stringToInt =
-    string
-        |> andThen
-            (\parsedString ->
-                case String.toInt parsedString of
-                    Err _ ->
-                        fail <| "Can't parse " ++ parsedString ++ " as a number"
-
-                    Ok val ->
-                        succeed val
-            )

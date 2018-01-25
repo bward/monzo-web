@@ -1,4 +1,9 @@
-module Account exposing (..)
+module Data.Account exposing (..)
+
+
+type Account
+    = Prepaid PrepaidInfo
+    | Retail RetailInfo
 
 
 type alias PrepaidInfo =
@@ -15,8 +20,3 @@ type alias RetailInfo =
     , number : Int
     , sortCode : Int
     }
-
-
-type Account
-    = Prepaid PrepaidInfo
-    | Retail RetailInfo

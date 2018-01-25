@@ -1,0 +1,6 @@
+module Config exposing (accessToken)
+
+
+accessToken : String
+accessToken =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6Im9hdXRoY2xpZW50XzAwMDA5NFB2SU5ER3pUM2s2dHo4anAiLCJleHAiOjE1MTcwMDE3MDcsImlhdCI6MTUxNjgyODkwNywianRpIjoidG9rXzAwMDA5U3Z1T1pkRXhVZGpIb1BSbHgiLCJ1aSI6InVzZXJfMDAwMDlMcllhUWRFd21uYWJWZGxKSiIsInYiOiIyIn0.Sxd4Msf2sdfMgrcDHVutlnwQ55iKo5nCe6bQNq5FGHA"
