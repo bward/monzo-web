@@ -1,4 +1,4 @@
-module Request.Account exposing (accountsResponse)
+module Request.Account exposing (accounts)
 
 import Json.Decode exposing (Decoder, string, int, field, list, andThen, map, fail, succeed)
 import Json.Decode.Pipeline exposing (decode, required)
@@ -41,6 +41,6 @@ retailInfo =
         |> required "sort_code" stringToInt
 
 
-accountsResponse : Decoder (List Account)
-accountsResponse =
+accounts : Decoder (List Account)
+accounts =
     field "accounts" (list account)
