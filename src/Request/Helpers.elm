@@ -1,4 +1,4 @@
-module Request.Helpers exposing (authorisedGet, stringToInt)
+module Request.Helpers exposing (authorisedGet)
 
 import Http
 import Json.Decode exposing (Decoder, string, andThen, succeed, fail)
@@ -16,17 +16,3 @@ authorisedGet url jsonDecoder =
         , timeout = Nothing
         , withCredentials = False
         }
-
-
-stringToInt : Decoder Int
-stringToInt =
-    string
-        |> andThen
-            (\parsedString ->
-                case String.toInt parsedString of
-                    Err _ ->
-                        fail <| "Can't parse " ++ parsedString ++ " as a number"
-
-                    Ok val ->
-                        succeed val
-            )

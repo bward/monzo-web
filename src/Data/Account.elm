@@ -17,6 +17,16 @@ type alias RetailInfo =
     { id : String
     , created : String
     , description : String
-    , number : Int
-    , sortCode : Int
+    , number : String
+    , sortCode : String
     }
+
+
+compare : Account -> Int
+compare acc =
+    case acc of
+        Retail _ ->
+            0
+
+        Prepaid _ ->
+            1

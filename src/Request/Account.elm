@@ -3,7 +3,6 @@ module Request.Account exposing (accounts)
 import Json.Decode exposing (Decoder, string, int, field, list, andThen, map, fail, succeed)
 import Json.Decode.Pipeline exposing (decode, required)
 import Data.Account exposing (..)
-import Request.Helpers exposing (stringToInt)
 
 
 account : Decoder Account
@@ -37,8 +36,8 @@ retailInfo =
         |> required "id" string
         |> required "created" string
         |> required "description" string
-        |> required "account_number" stringToInt
-        |> required "sort_code" stringToInt
+        |> required "account_number" string
+        |> required "sort_code" string
 
 
 accounts : Decoder (List Account)

@@ -1,7 +1,10 @@
 module Pages.Accounts exposing (..)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Http
+import List
+import Task
 import Data.Account exposing (Account(..))
 import Data.Balance exposing (Balance, Currency(..))
 import Request.Account
@@ -12,24 +15,22 @@ import Request.Helpers exposing (authorisedGet)
 type Accounts
     = Loading
     | Error
-    | Accounts (List Account)
+    | Accounts (List ( Account, Balance ))
 
 
 type alias Model =
-    { balance : Maybe Balance
-    , accounts : Accounts
+    { accounts : Accounts
     }
 
 
 type Msg
     = RefreshAccounts
-    | ShowAccounts (Result Http.Error (List Account))
-    | ShowBalance (Result Http.Error Balance)
+    | ShowAccounts (Result Http.Error (List ( Account, Balance )))
 
 
 init : Model
 init =
-    Model Nothing Loading
+    Model Loading
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -39,81 +40,79 @@ update msg model =
             ( model, loadAccounts )
 
         ShowAccounts (Ok accounts) ->
-            ( { model | accounts = Accounts accounts }
-            , loadBalance <|
-                List.head <|
-                    List.filter
-                        (\acc ->
-                            case acc of
-                                Retail _ ->
-                                    True
-
-                                _ ->
-                                    False
-                        )
-                        accounts
-            )
+            ( { model | accounts = Accounts accounts }, Cmd.none )
 
         ShowAccounts (Err _) ->
             ( { model | accounts = Error }, Cmd.none )
 
-        ShowBalance (Ok balance) ->
-            ( { model | balance = Just balance }, Cmd.none )
 
-        ShowBalance (Err _) ->
-            ( model, Cmd.none )
+view : Model -> Html Msg
+view model =
+    div [ id "accounts" ]
+        (case model.accounts of
+            Loading ->
+                [ p [] [ text "Loading Accounts" ] ]
+
+            Accounts accounts ->
+                List.map renderAccount accounts
+
+            Error ->
+                [ p [] [ text "Something went wrong!" ] ]
+        )
+
+
+renderAccount : ( Account, Balance ) -> Html Msg
+renderAccount ( acc, bal ) =
+    case acc of
+        Retail info ->
+            div [ class "account retail-account" ]
+                [ span [] [ text "Current account" ]
+                , span [ class "account-number" ] [ text info.number ]
+                , span [ class "sort-code" ] [ text info.sortCode ]
+                , span [ class "balance" ] [ text <| Data.Balance.format bal ]
+                ]
+
+        Prepaid info ->
+            div [ class "account prepaid-account" ]
+                [ span [] [ text "Prepaid account" ]
+                , span [ class "balance" ] [ text <| Data.Balance.format bal ]
+                ]
 
 
 loadAccounts : Cmd Msg
 loadAccounts =
     let
-        request =
+        getAccounts =
             authorisedGet "accounts" Request.Account.accounts
+                |> Http.toTask
+
+        addBalance acc =
+            loadBalance acc
+                |> Task.map (\bal -> ( acc, bal ))
+
+        getAccountsAndBalances =
+            getAccounts
+                |> Task.andThen
+                    (\accs ->
+                        Task.succeed (List.sortBy Data.Account.compare accs)
+                    )
+                |> Task.andThen
+                    (\accs ->
+                        Task.sequence (List.map addBalance accs)
+                    )
     in
-        Http.send ShowAccounts request
+        Task.attempt ShowAccounts getAccountsAndBalances
 
 
-loadBalance : Maybe Account -> Cmd Msg
+loadBalance : Account -> Task.Task Http.Error Balance
 loadBalance account =
-    case account of
-        Just account_ ->
-            let
-                request =
-                    case account_ of
-                        Prepaid prepaidInfo ->
-                            authorisedGet ("balance?account_id=" ++ prepaidInfo.id) Request.Balance.balance
+    let
+        request =
+            case account of
+                Prepaid prepaidInfo ->
+                    authorisedGet ("balance?account_id=" ++ prepaidInfo.id) Request.Balance.balance
 
-                        Retail retailInfo ->
-                            authorisedGet ("balance?account_id=" ++ retailInfo.id) Request.Balance.balance
-            in
-                Http.send ShowBalance request
-
-        Nothing ->
-            Cmd.none
-
-
-view : Model -> Html Msg
-view model =
-    div []
-        [ p []
-            [ text <|
-                case model.accounts of
-                    Loading ->
-                        "Loading Accounts"
-
-                    Accounts accounts ->
-                        toString accounts
-
-                    Error ->
-                        "Something went wrong!"
-            ]
-        , p []
-            [ text <|
-                case model.balance of
-                    Just balance ->
-                        toString balance
-
-                    Nothing ->
-                        "Loading Balance"
-            ]
-        ]
+                Retail retailInfo ->
+                    authorisedGet ("balance?account_id=" ++ retailInfo.id) Request.Balance.balance
+    in
+        Http.toTask request
