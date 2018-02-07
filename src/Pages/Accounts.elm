@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Http
 import List
 import Task
-import Data.Account exposing (Account(..))
+import Data.Account exposing (Account)
 import Data.Balance exposing (Balance, Currency(..))
 import Request.Account
 import Request.Balance
@@ -63,27 +63,19 @@ view model =
 
 renderAccount : ( Account, Balance ) -> Html Msg
 renderAccount ( acc, bal ) =
-    case acc of
-        Retail info ->
-            div [ class "account retail-account" ]
-                [ span [] [ text "Current account" ]
-                , span [ class "account-number" ] [ text info.number ]
-                , span [ class "sort-code" ] [ text info.sortCode ]
-                , span [ class "balance" ] [ text <| Data.Balance.format bal ]
-                ]
-
-        Prepaid info ->
-            div [ class "account prepaid-account" ]
-                [ span [] [ text "Prepaid account" ]
-                , span [ class "balance" ] [ text <| Data.Balance.format bal ]
-                ]
+    div [ class "account retail-account" ]
+        [ span [] [ text "Current account" ]
+        , span [ class "account-number" ] [ text acc.number ]
+        , span [ class "sort-code" ] [ text acc.sortCode ]
+        , span [ class "balance" ] [ text (Data.Balance.format bal) ]
+        ]
 
 
 loadAccounts : Cmd Msg
 loadAccounts =
     let
         getAccounts =
-            authorisedGet "accounts" Request.Account.accounts
+            authorisedGet "accounts?account_type=uk_retail" Request.Account.accounts
                 |> Http.toTask
 
         addBalance acc =
@@ -94,10 +86,6 @@ loadAccounts =
             getAccounts
                 |> Task.andThen
                     (\accs ->
-                        Task.succeed (List.sortBy Data.Account.compare accs)
-                    )
-                |> Task.andThen
-                    (\accs ->
                         Task.sequence (List.map addBalance accs)
                     )
     in
@@ -105,14 +93,9 @@ loadAccounts =
 
 
 loadBalance : Account -> Task.Task Http.Error Balance
-loadBalance account =
+loadBalance acc =
     let
         request =
-            case account of
-                Prepaid prepaidInfo ->
-                    authorisedGet ("balance?account_id=" ++ prepaidInfo.id) Request.Balance.balance
-
-                Retail retailInfo ->
-                    authorisedGet ("balance?account_id=" ++ retailInfo.id) Request.Balance.balance
+            authorisedGet ("balance?account_id=" ++ acc.id) Request.Balance.balance
     in
         Http.toTask request

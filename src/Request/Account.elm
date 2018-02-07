@@ -11,28 +11,17 @@ account =
         |> andThen
             (\accountType ->
                 case accountType of
-                    "uk_prepaid" ->
-                        map Prepaid prepaidInfo
-
                     "uk_retail" ->
-                        map Retail retailInfo
+                        accountInfo
 
                     otherType ->
                         fail <| "Unknown account type: " ++ otherType
             )
 
 
-prepaidInfo : Decoder PrepaidInfo
-prepaidInfo =
-    decode PrepaidInfo
-        |> required "id" string
-        |> required "created" string
-        |> required "description" string
-
-
-retailInfo : Decoder RetailInfo
-retailInfo =
-    decode RetailInfo
+accountInfo : Decoder Account
+accountInfo =
+    decode Account
         |> required "id" string
         |> required "created" string
         |> required "description" string
