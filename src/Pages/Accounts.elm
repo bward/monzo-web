@@ -3,29 +3,31 @@ module Pages.Accounts exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
-import List
 import Task
-import Data.Account exposing (Account)
-import Data.Balance exposing (Balance, Currency(..))
-import Request.Account
-import Request.Balance
-import Request.Helpers exposing (authorisedGet)
+import Data.Account
+import Data.Balance
+import Request.Account exposing (getAccount)
+import Request.Balance exposing (addBalance)
 
 
-type Accounts
+type alias AccountInfo =
+    ( Data.Account.Account, Data.Balance.Balance )
+
+
+type Account
     = Loading
     | Error
-    | Accounts (List ( Account, Balance ))
+    | Account AccountInfo
 
 
 type alias Model =
-    { accounts : Accounts
+    { accounts : Account
     }
 
 
 type Msg
     = RefreshAccounts
-    | ShowAccounts (Result Http.Error (List ( Account, Balance )))
+    | ShowAccounts (Result Http.Error AccountInfo)
 
 
 init : Model
@@ -37,10 +39,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         RefreshAccounts ->
-            ( model, loadAccounts )
+            ( model, loadAccount )
 
-        ShowAccounts (Ok accounts) ->
-            ( { model | accounts = Accounts accounts }, Cmd.none )
+        ShowAccounts (Ok account) ->
+            ( { model | accounts = Account account }, Cmd.none )
 
         ShowAccounts (Err _) ->
             ( { model | accounts = Error }, Cmd.none )
@@ -49,53 +51,30 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ id "accounts" ]
-        (case model.accounts of
+        [ case model.accounts of
             Loading ->
-                [ p [] [ text "Loading Accounts" ] ]
+                p [] [ text "Loading Accounts" ]
 
-            Accounts accounts ->
-                List.map renderAccount accounts
+            Account accounts ->
+                renderAccount accounts
 
             Error ->
-                [ p [] [ text "Something went wrong!" ] ]
-        )
-
-
-renderAccount : ( Account, Balance ) -> Html Msg
-renderAccount ( acc, bal ) =
-    div [ class "account retail-account" ]
-        [ span [] [ text "Current account" ]
-        , span [ class "account-number" ] [ text acc.number ]
-        , span [ class "sort-code" ] [ text acc.sortCode ]
-        , span [ class "balance" ] [ text (Data.Balance.format bal) ]
+                p [] [ text "Something went wrong!" ]
         ]
 
 
-loadAccounts : Cmd Msg
-loadAccounts =
-    let
-        getAccounts =
-            authorisedGet "accounts?account_type=uk_retail" Request.Account.accounts
-                |> Http.toTask
-
-        addBalance acc =
-            loadBalance acc
-                |> Task.map (\bal -> ( acc, bal ))
-
-        getAccountsAndBalances =
-            getAccounts
-                |> Task.andThen
-                    (\accs ->
-                        Task.sequence (List.map addBalance accs)
-                    )
-    in
-        Task.attempt ShowAccounts getAccountsAndBalances
+renderAccount : AccountInfo -> Html Msg
+renderAccount ( acc, bal ) =
+    div [ class "account retail-account" ]
+        [ div [] [ text "Current account" ]
+        , div [ class "account-number" ] [ text acc.number ]
+        , div [ class "sort-code" ] [ text acc.sortCode ]
+        , div [ class "balance" ] [ text (Data.Balance.format bal) ]
+        ]
 
 
-loadBalance : Account -> Task.Task Http.Error Balance
-loadBalance acc =
-    let
-        request =
-            authorisedGet ("balance?account_id=" ++ acc.id) Request.Balance.balance
-    in
-        Http.toTask request
+loadAccount : Cmd Msg
+loadAccount =
+    getAccount
+        |> Task.andThen addBalance
+        |> Task.attempt ShowAccounts

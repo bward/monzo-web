@@ -1,7 +1,10 @@
-module Request.Account exposing (accounts)
+module Request.Account exposing (getAccount)
 
-import Json.Decode exposing (Decoder, string, int, field, list, andThen, map, fail, succeed)
+import Json.Decode exposing (Decoder, string, int, field, index, andThen, map, fail, succeed)
 import Json.Decode.Pipeline exposing (decode, required)
+import Http
+import Task
+import Request.Helpers exposing (authorisedGet)
 import Data.Account exposing (..)
 
 
@@ -29,6 +32,12 @@ accountInfo =
         |> required "sort_code" string
 
 
-accounts : Decoder (List Account)
+accounts : Decoder Account
 accounts =
-    field "accounts" (list account)
+    field "accounts" (index 0 account)
+
+
+getAccount : Task.Task Http.Error Account
+getAccount =
+    authorisedGet "accounts?account_type=uk_retail" accounts
+        |> Http.toTask

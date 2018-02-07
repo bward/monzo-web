@@ -24,7 +24,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { page = AccountsPage Accounts.init }, Cmd.map AccountsMsg Accounts.loadAccounts )
+    ( { page = AccountsPage Accounts.init }, Cmd.map AccountsMsg Accounts.loadAccount )
 
 
 type Msg
