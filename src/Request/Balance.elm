@@ -1,4 +1,4 @@
-module Request.Balance exposing (addBalance)
+module Request.Balance exposing (addBalance, currency)
 
 import Json.Decode exposing (Decoder, string, int, andThen, map, fail, succeed, andThen)
 import Json.Decode.Pipeline exposing (decode, required)
@@ -21,13 +21,13 @@ currency : Decoder Currency
 currency =
     string
         |> andThen
-            (\currencyString ->
-                case currencyString of
+            (\cur ->
+                case cur of
                     "GBP" ->
                         succeed GBP
 
                     _ ->
-                        fail "Unrecognised currency"
+                        fail ("Unrecognised currency" ++ cur)
             )
 
 

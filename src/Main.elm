@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Pages.Accounts as Accounts
+import Pages.Account as Account
 
 
 main : Program Never Model Msg
@@ -15,7 +15,7 @@ main =
 
 
 type Page
-    = AccountsPage Accounts.Model
+    = AccountsPage Account.Model
 
 
 type alias Model =
@@ -24,18 +24,18 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { page = AccountsPage Accounts.init }, Cmd.map AccountsMsg Accounts.loadAccount )
+    ( { page = AccountsPage Account.init }, Cmd.map AccountsMsg Account.loadAccount )
 
 
 type Msg
-    = AccountsMsg Accounts.Msg
+    = AccountsMsg Account.Msg
 
 
 view : Model -> Html Msg
 view model =
     case model.page of
         AccountsPage subModel ->
-            Html.map AccountsMsg (Accounts.view subModel)
+            Html.map AccountsMsg (Account.view subModel)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -44,7 +44,7 @@ update msg model =
         ( AccountsMsg subMsg, AccountsPage subModel ) ->
             let
                 ( newModel, newCmd ) =
-                    Accounts.update subMsg subModel
+                    Account.update subMsg subModel
             in
                 ( { model | page = AccountsPage newModel }, Cmd.map AccountsMsg newCmd )
 
