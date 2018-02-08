@@ -3,4 +3,4 @@ module Config exposing (accessToken)
 
 accessToken : String
 accessToken =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjaSI6Im9hdXRoY2xpZW50XzAwMDA5NFB2SU5ER3pUM2s2dHo4anAiLCJleHAiOjE1MTgxMjY5NzgsImlhdCI6MTUxNzk1NDE3OCwianRpIjoidG9rXzAwMDA5VE11OWZycWpxOERZQTNZQzkiLCJ1aSI6InVzZXJfMDAwMDlMcllhUWRFd21uYWJWZGxKSiIsInYiOiIyIn0.6V7cvXRbgCjiBQH7_NI-5wHdeFnIpE3OdzvmaPsV1Ag"
+    ""
