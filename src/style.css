@@ -5,7 +5,6 @@ body {
 #wrapper {
     width: 60vw;
     margin: 0 auto;
-    background-color: #ddd;
 }
 
 #account {
@@ -19,6 +18,15 @@ table, table tr, table td { padding:none;border:none;border-spacing:0;}
 
 #transactions {
     width: 100%;
+    background-color: #ddd;
+}
+
+#transactions > tr:nth-child(even) {
+    background-color: #eee;
+}
+
+#transactions > tr > td {
+    padding: 0.3vw 3px;
 }
 
 .income {
