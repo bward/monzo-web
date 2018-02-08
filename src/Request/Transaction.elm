@@ -15,6 +15,7 @@ getTransactions : Account -> Task.Task Http.Error (List Transaction)
 getTransactions acc =
     authorisedGet ("transactions?account_id=" ++ acc.id) transactions
         |> Http.toTask
+        |> Task.map List.reverse
 
 
 transactions : Decoder (List Transaction)
@@ -31,9 +32,21 @@ transaction =
         |> required "created" date
         |> required "merchant" (nullable string)
         |> required "category" category
-        |> required "is_load" bool
+        |> required "amount" isTopUp
         |> optional "settled" (maybe date) Nothing
         |> optional "decline_reason" (maybe declineReason) Nothing
+
+
+isTopUp : Decoder Bool
+isTopUp =
+    int
+        |> andThen
+            (\amount ->
+                if amount > 0 then
+                    succeed True
+                else
+                    succeed False
+            )
 
 
 date : Decoder Date

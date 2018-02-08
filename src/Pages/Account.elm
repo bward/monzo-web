@@ -23,7 +23,7 @@ type Account
 
 
 type alias Model =
-    { accounts : Account
+    { account : Account
     , transactions : List Transaction
     }
 
@@ -46,10 +46,10 @@ update msg model =
             ( model, loadAccount )
 
         ShowAccount (Ok ( acc, bal )) ->
-            ( { model | accounts = Account ( acc, bal ) }, loadTransactions acc )
+            ( { model | account = Account ( acc, bal ) }, loadTransactions acc )
 
         ShowAccount (Err _) ->
-            ( { model | accounts = Error }, Cmd.none )
+            ( { model | account = Error }, Cmd.none )
 
         ShowTransactions (Ok txs) ->
             ( { model | transactions = txs }, Cmd.none )
@@ -60,9 +60,9 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ id "wrapper" ]
         [ div [ id "account" ]
-            [ case model.accounts of
+            [ case model.account of
                 Loading ->
                     p [] [ text "Loading Accounts" ]
 
@@ -72,7 +72,7 @@ view model =
                 Error ->
                     p [] [ text "Something went wrong!" ]
             ]
-        , div [ id "transactions" ]
+        , table [ id "transactions" ]
             (List.map renderTransaction model.transactions)
         ]
 
@@ -89,8 +89,24 @@ renderAccount ( acc, bal ) =
 
 renderTransaction : Transaction -> Html Msg
 renderTransaction tx =
-    div [ class "transaction" ]
-        [ span [] [ text <| (Data.Transaction.format tx) ++ " on " ++ (toString tx.created) ]
+    tr [ class "transaction" ]
+        [ td [ class "created" ] [ text (Data.Transaction.formatDate tx) ]
+        , td [ class "merchant" ] [ text (toString tx.merchantId) ]
+        , td [ class "category" ] [ text (toString tx.category) ]
+        , td [ class "income" ]
+            [ text <|
+                if tx.isTopUp then
+                    (Data.Transaction.formatAmount tx)
+                else
+                    ""
+            ]
+        , td [ class "expense" ]
+            [ text <|
+                if tx.isTopUp then
+                    ""
+                else
+                    (Data.Transaction.formatAmount tx)
+            ]
         ]
 
 

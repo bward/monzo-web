@@ -1,6 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
+import Html.Attributes exposing (..)
 import Pages.Account as Account
 
 
@@ -33,9 +34,12 @@ type Msg
 
 view : Model -> Html Msg
 view model =
-    case model.page of
-        AccountsPage subModel ->
-            Html.map AccountsMsg (Account.view subModel)
+    div []
+        [ case model.page of
+            AccountsPage subModel ->
+                Html.map AccountsMsg (Account.view subModel)
+        , node "link" [ rel "stylesheet", href "style.css" ] []
+        ]
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

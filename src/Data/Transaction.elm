@@ -1,6 +1,7 @@
 module Data.Transaction exposing (..)
 
 import Date exposing (Date)
+import Date.Format exposing (format)
 import FormatNumber exposing (formatFloat, usLocale)
 import Data.Balance exposing (Currency, currencySymbol)
 
@@ -12,7 +13,7 @@ type alias Transaction =
     , created : Date
     , merchantId : Maybe String
     , category : Category
-    , isLoad : Bool
+    , isTopUp : Bool
     , settled : Maybe Date
     , declineReason : Maybe DeclineReason
     }
@@ -39,7 +40,12 @@ type Category
     | Groceries
 
 
-format : Transaction -> String
-format tx =
+formatAmount : Transaction -> String
+formatAmount tx =
     formatFloat usLocale (toFloat (abs tx.amount) / 100)
         |> (++) (currencySymbol tx.currency)
+
+
+formatDate : Transaction -> String
+formatDate tx =
+    format "%d %b %y" tx.created

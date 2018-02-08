@@ -1,0 +1,48 @@
+body {
+  font-family: Helvetica;
+}
+
+#wrapper {
+    width: 60vw;
+    margin: 0 auto;
+    background-color: #ddd;
+}
+
+#account {
+    text-align: right;
+    background-color: #ccc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+table, table tr, table td { padding:none;border:none;border-spacing:0;}
+
+#transactions {
+    width: 100%;
+}
+
+.income {
+    width: 10%;
+    text-align: right;
+    color: darkgreen;
+}
+
+.expense {
+    width: 10%;
+    text-align: right;
+    color: darkred;
+}
+
+.created {
+    width: 10%;
+}
+
+.category {
+    width: 20%;
+    text-align: center;
+}
+
+.merchant {
+    width: 50%;
+    text-align: center;
+}
