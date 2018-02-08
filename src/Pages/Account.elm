@@ -7,6 +7,7 @@ import Task
 import Data.Account
 import Data.Balance exposing (Balance)
 import Data.Transaction exposing (Transaction)
+import Data.Merchant
 import Request.Account exposing (getAccount)
 import Request.Balance exposing (addBalance)
 import Request.Transaction exposing (getTransactions)
@@ -91,7 +92,7 @@ renderTransaction : Transaction -> Html Msg
 renderTransaction tx =
     tr [ class "transaction" ]
         [ td [ class "created" ] [ text (Data.Transaction.formatDate tx) ]
-        , td [ class "merchant" ] [ text (toString tx.merchantId) ]
+        , td [ class "merchant" ] [ text (Data.Merchant.formatName tx.merchant) ]
         , td [ class "category" ] [ text (toString tx.category) ]
         , td [ class "income" ]
             [ text <|

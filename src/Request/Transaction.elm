@@ -1,19 +1,19 @@
 module Request.Transaction exposing (getTransactions)
 
-import Json.Decode exposing (Decoder, string, int, bool, field, list, andThen, map, nullable, fail, succeed, maybe)
+import Json.Decode exposing (Decoder, string, int, field, list, andThen, map, nullable, fail, succeed, maybe)
 import Json.Decode.Pipeline exposing (decode, required, optional)
-import Date exposing (Date)
 import Task
 import Http
 import Data.Account exposing (..)
 import Data.Transaction exposing (..)
 import Request.Balance exposing (currency)
-import Request.Helpers exposing (authorisedGet)
+import Request.Merchant exposing (merchant)
+import Request.Helpers exposing (authorisedGet, date, category)
 
 
 getTransactions : Account -> Task.Task Http.Error (List Transaction)
 getTransactions acc =
-    authorisedGet ("transactions?account_id=" ++ acc.id) transactions
+    authorisedGet ("transactions?expand[]=merchant&account_id=" ++ acc.id) transactions
         |> Http.toTask
         |> Task.map List.reverse
 
@@ -30,7 +30,7 @@ transaction =
         |> required "amount" int
         |> required "currency" currency
         |> required "created" date
-        |> required "merchant" (nullable string)
+        |> required "merchant" (nullable merchant)
         |> required "category" category
         |> required "amount" isTopUp
         |> optional "settled" (maybe date) Nothing
@@ -46,65 +46,6 @@ isTopUp =
                     succeed True
                 else
                     succeed False
-            )
-
-
-date : Decoder Date
-date =
-    string
-        |> map Date.fromString
-        |> andThen
-            (\res ->
-                case res of
-                    Ok d ->
-                        succeed d
-
-                    Err e ->
-                        fail e
-            )
-
-
-category : Decoder Category
-category =
-    string
-        |> andThen
-            (\cat ->
-                case cat of
-                    "mondo" ->
-                        succeed Monzo
-
-                    "general" ->
-                        succeed General
-
-                    "eating_out" ->
-                        succeed EatingOut
-
-                    "expenses" ->
-                        succeed Expenses
-
-                    "transport" ->
-                        succeed Transport
-
-                    "cash" ->
-                        succeed Cash
-
-                    "bills" ->
-                        succeed Bills
-
-                    "entertainment" ->
-                        succeed Entertainment
-
-                    "shopping" ->
-                        succeed Shopping
-
-                    "holidays" ->
-                        succeed Holidays
-
-                    "groceries" ->
-                        succeed Groceries
-
-                    _ ->
-                        fail ("Unknown category" ++ cat)
             )
 
 

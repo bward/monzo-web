@@ -4,6 +4,8 @@ import Date exposing (Date)
 import Date.Format exposing (format)
 import FormatNumber exposing (formatFloat, usLocale)
 import Data.Balance exposing (Currency, currencySymbol)
+import Data.Category exposing (Category)
+import Data.Merchant exposing (Merchant)
 
 
 type alias Transaction =
@@ -11,7 +13,7 @@ type alias Transaction =
     , amount : Int
     , currency : Currency
     , created : Date
-    , merchantId : Maybe String
+    , merchant : Maybe Merchant
     , category : Category
     , isTopUp : Bool
     , settled : Maybe Date
@@ -24,20 +26,6 @@ type DeclineReason
     | CardInactive
     | CardBlocked
     | Other
-
-
-type Category
-    = Monzo
-    | General
-    | EatingOut
-    | Expenses
-    | Transport
-    | Cash
-    | Bills
-    | Entertainment
-    | Shopping
-    | Holidays
-    | Groceries
 
 
 formatAmount : Transaction -> String

@@ -1,7 +1,9 @@
-module Request.Helpers exposing (authorisedGet)
+module Request.Helpers exposing (..)
 
 import Http
-import Json.Decode exposing (Decoder, string, andThen, succeed, fail)
+import Json.Decode exposing (Decoder, string, andThen, succeed, fail, map)
+import Date exposing (Date)
+import Data.Category exposing (Category(..))
 import Config
 
 
@@ -16,3 +18,62 @@ authorisedGet url jsonDecoder =
         , timeout = Nothing
         , withCredentials = False
         }
+
+
+date : Decoder Date
+date =
+    string
+        |> map Date.fromString
+        |> andThen
+            (\res ->
+                case res of
+                    Ok d ->
+                        succeed d
+
+                    Err e ->
+                        fail e
+            )
+
+
+category : Decoder Category
+category =
+    string
+        |> andThen
+            (\cat ->
+                case cat of
+                    "mondo" ->
+                        succeed Monzo
+
+                    "general" ->
+                        succeed General
+
+                    "eating_out" ->
+                        succeed EatingOut
+
+                    "expenses" ->
+                        succeed Expenses
+
+                    "transport" ->
+                        succeed Transport
+
+                    "cash" ->
+                        succeed Cash
+
+                    "bills" ->
+                        succeed Bills
+
+                    "entertainment" ->
+                        succeed Entertainment
+
+                    "shopping" ->
+                        succeed Shopping
+
+                    "holidays" ->
+                        succeed Holidays
+
+                    "groceries" ->
+                        succeed Groceries
+
+                    _ ->
+                        fail ("Unknown category" ++ cat)
+            )

@@ -26,23 +26,24 @@ table, table tr, table td { padding:none;border:none;border-spacing:0;}
 }
 
 #transactions > tr > td {
-    padding: 0.3vw 3px;
+    padding: 5px 5px;
 }
 
 .income {
-    width: 10%;
+    width: 12%;
     text-align: right;
     color: darkgreen;
 }
 
 .expense {
-    width: 10%;
+    width: 12%;
     text-align: right;
     color: darkred;
 }
 
 .created {
-    width: 10%;
+    width: 16%;
+    font-weight: bold;
 }
 
 .category {
@@ -51,6 +52,6 @@ table, table tr, table td { padding:none;border:none;border-spacing:0;}
 }
 
 .merchant {
-    width: 50%;
+    width: 40%;
     text-align: center;
 }
