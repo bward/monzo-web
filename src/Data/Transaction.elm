@@ -17,7 +17,14 @@ type alias Transaction =
     , category : Category
     , isTopUp : Bool
     , settled : Maybe Date
+    , counterparty : Maybe Counterparty
     , declineReason : Maybe DeclineReason
+    }
+
+
+type alias Counterparty =
+    { name : String
+    , userId : String
     }
 
 
@@ -37,3 +44,13 @@ formatAmount tx =
 formatDate : Transaction -> String
 formatDate tx =
     format "%d %b %y" tx.created
+
+
+formatDescription : Transaction -> String
+formatDescription tx =
+    case tx.counterparty of
+        Just cp ->
+            cp.name
+
+        Nothing ->
+            Data.Merchant.formatName tx.merchant

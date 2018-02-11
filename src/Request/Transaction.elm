@@ -34,6 +34,7 @@ transaction =
         |> required "category" category
         |> required "amount" isTopUp
         |> optional "settled" (maybe date) Nothing
+        |> optional "counterparty" (maybe counterparty) Nothing
         |> optional "decline_reason" (maybe declineReason) Nothing
 
 
@@ -47,6 +48,13 @@ isTopUp =
                 else
                     succeed False
             )
+
+
+counterparty : Decoder Counterparty
+counterparty =
+    decode Counterparty
+        |> required "name" string
+        |> required "user_id" string
 
 
 declineReason : Decoder DeclineReason

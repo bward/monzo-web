@@ -92,7 +92,7 @@ renderTransaction : Transaction -> Html Msg
 renderTransaction tx =
     tr [ class "transaction" ]
         [ td [ class "created" ] [ text (Data.Transaction.formatDate tx) ]
-        , td [ class "merchant" ] [ text (Data.Merchant.formatName tx.merchant) ]
+        , td [ class "merchant" ] [ text (Data.Transaction.formatDescription tx) ]
         , td [ class "category" ] [ text (toString tx.category) ]
         , td [ class "income" ]
             [ text <|
