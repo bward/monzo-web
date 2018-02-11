@@ -4,10 +4,10 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
 import Task
+import RemoteData exposing (WebData, RemoteData(..))
 import Data.Account
 import Data.Balance exposing (Balance)
 import Data.Transaction exposing (Transaction)
-import Data.Merchant
 import Request.Account exposing (getAccount)
 import Request.Balance exposing (addBalance)
 import Request.Transaction exposing (getTransactions)
@@ -17,15 +17,9 @@ type alias AccountInfo =
     ( Data.Account.Account, Balance )
 
 
-type Account
-    = Loading
-    | Error
-    | Account AccountInfo
-
-
 type alias Model =
-    { account : Account
-    , transactions : List Transaction
+    { account : WebData AccountInfo
+    , transactions : WebData (List Transaction)
     }
 
 
@@ -37,7 +31,9 @@ type Msg
 
 init : Model
 init =
-    Model Loading []
+    { account = Loading
+    , transactions = NotAsked
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -47,13 +43,13 @@ update msg model =
             ( model, loadAccount )
 
         ShowAccount (Ok ( acc, bal )) ->
-            ( { model | account = Account ( acc, bal ) }, loadTransactions acc )
+            ( { model | account = Success ( acc, bal ), transactions = Loading }, loadTransactions acc )
 
-        ShowAccount (Err _) ->
-            ( { model | account = Error }, Cmd.none )
+        ShowAccount (Err err) ->
+            ( { model | account = Failure err }, Cmd.none )
 
         ShowTransactions (Ok txs) ->
-            ( { model | transactions = txs }, Cmd.none )
+            ( { model | transactions = Success txs }, Cmd.none )
 
         ShowTransactions (Err e) ->
             ( model, Cmd.none )
@@ -64,17 +60,32 @@ view model =
     div [ id "wrapper" ]
         [ div [ id "account" ]
             [ case model.account of
-                Loading ->
-                    p [] [ text "Loading Accounts" ]
+                NotAsked ->
+                    div [ class "loader" ] []
 
-                Account accounts ->
+                Loading ->
+                    div [ class "loader" ] []
+
+                Success accounts ->
                     renderAccount accounts
 
-                Error ->
+                Failure _ ->
                     p [] [ text "Something went wrong!" ]
             ]
         , table [ id "transactions" ]
-            (List.map renderTransaction model.transactions)
+            (case model.transactions of
+                NotAsked ->
+                    [ tr [] [ td [] [] ] ]
+
+                Loading ->
+                    [ tr [] [ td [] [ div [ class "loader" ] [] ] ] ]
+
+                Success txs ->
+                    List.map renderTransaction txs
+
+                Failure _ ->
+                    [ tr [] [ td [] [] ] ]
+            )
         ]
 
 
