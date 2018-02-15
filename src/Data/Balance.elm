@@ -14,9 +14,9 @@ type Currency
     = GBP
 
 
-format : Balance -> String
-format bal =
-    formatFloat usLocale (toFloat bal.balance / 100)
+format : (Balance -> Int) -> Balance -> String
+format selector bal=
+    formatFloat usLocale (toFloat (selector bal) / 100)
         |> (++) (currencySymbol bal.currency)
 
 

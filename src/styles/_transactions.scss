@@ -1,0 +1,66 @@
+table, table tr, table td { padding:none;border:none;border-spacing:0;}
+
+#transactions {
+    grid-area: transactions;
+    width: 100%;
+    height: 100%;
+
+    tr {
+        &:hover {
+            filter: brightness(0.9);
+        }
+        &:first-child {
+            td{
+                &:first-child { border-top-left-radius: $box-radius; }
+                &:last-child { border-top-right-radius: $box-radius; }
+            }
+        }
+        &:last-child {
+            td {
+                &:first-child { border-bottom-left-radius: $box-radius; }
+                &:last-child { border-bottom-right-radius: $box-radius; }
+            }
+        }
+
+        &:nth-child(odd) {
+            background-color: $medium-grey;
+        }
+
+        &:nth-child(even) {
+            background-color: $light-grey;
+        }
+
+        td {
+            padding: 5px 10px;
+        }
+
+        .income {
+            width: 12%;
+            text-align: right;
+            font-weight: bold;
+            color: darkgreen;
+        }
+
+        .expense {
+            width: 12%;
+            text-align: right;
+            font-weight: bold;
+            color: darkred;
+        }
+
+        .created {
+            width: 16%;
+            font-weight: bold;
+        }
+
+        .category {
+            width: 20%;
+            text-align: center;
+        }
+
+        .merchant {
+            width: 40%;
+            text-align: center;
+        }
+    }
+}

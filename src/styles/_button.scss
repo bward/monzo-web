@@ -1,0 +1,15 @@
+button {
+    background-color: $dark-grey;
+    color: $very-light-grey;
+    border: none;
+    border-radius: 3px;
+    font-size: 18px;
+
+    &:hover {
+        filter: brightness(1.2);
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+}

@@ -87,13 +87,28 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ id "wrapper" ]
-        [ div [ id "account" ]
+        [ div [ id "header" ] [ h1 [] [ text "💰💰💰" ] ]
+        , div [ id "today" ]
             (case model.account of
                 NotAsked ->
-                    [ div [ class "loader" ] [] ]
+                    loader
 
                 Loading ->
-                    [ div [ class "loader" ] [] ]
+                    loader
+
+                Success ( acc, bal ) ->
+                    [ h2 [] [ text "Today" ], h1 [] [ text (Data.Balance.format (\b -> b.spendToday) bal) ] ]
+
+                Failure _ ->
+                    [ text "" ]
+            )
+        , div [ id "account" ]
+            (case model.account of
+                NotAsked ->
+                    loader
+
+                Loading ->
+                    loader
 
                 Success accounts ->
                     renderAccount accounts
@@ -101,13 +116,14 @@ view model =
                 Failure _ ->
                     [ p [] [ text "Something went wrong!" ] ]
             )
+        , div [ id "top-controls" ] renderControls
         , table [ id "transactions" ]
             (case model.transactions of
                 NotAsked ->
-                    [ tr [] [ td [] [] ] ]
+                    [ tr [] [ td [] loader ] ]
 
                 Loading ->
-                    [ tr [] [ td [] [ div [ class "loader" ] [] ] ] ]
+                    [ tr [] [ td [] loader ] ]
 
                 Success txs ->
                     List.concatMap
@@ -124,7 +140,8 @@ view model =
                 Failure _ ->
                     [ tr [] [ td [] [] ] ]
             )
-        , div [ id "stats" ] []
+        , div [ id "stats" ] loader
+        , div [ id "bottom-controls" ] renderControls
         ]
 
 
@@ -133,12 +150,25 @@ subscriptions model =
     Sub.none
 
 
+loader : List (Html Msg)
+loader =
+    [ div [ class "loader" ] [] ]
+
+
+renderControls : List (Html Msg)
+renderControls =
+    [ button [] [ text "Forward" ]
+    , div [class "spacer"] []
+    , button [] [ text "Backward" ]
+    ]
+
+
 renderAccount : AccountInfo -> List (Html Msg)
 renderAccount ( acc, bal ) =
     [ div [] [ text "Current account" ]
     , div [ class "account-number" ] [ text acc.number ]
     , div [ class "sort-code" ] [ text acc.sortCode ]
-    , div [ class "balance" ] [ text (Data.Balance.format bal) ]
+    , div [ class "balance" ] [ text (Data.Balance.format (\b -> b.balance) bal) ]
     ]
 
 
@@ -167,7 +197,7 @@ renderTransaction tx =
 
 renderDetailedTransaction : Transaction -> Html Msg
 renderDetailedTransaction tx =
-    tr [ onClick (DetailTransaction (Just tx.id)) ]
+    tr [ rowspan 3, onClick (DetailTransaction (Just tx.id)) ]
         [ td [ colspan 5 ]
             [ text
                 ((Data.Transaction.formatTime tx)
