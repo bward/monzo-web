@@ -28,3 +28,4 @@ address =
         |> required "longitude" float
         |> required "postcode" string
         |> required "region" string
+        |> required "short_formatted" string

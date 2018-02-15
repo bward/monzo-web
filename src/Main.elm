@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Http
 import Task
 import RemoteData exposing (WebData, RemoteData(..))
@@ -26,6 +27,7 @@ main =
 type alias Model =
     { account : WebData AccountInfo
     , transactions : WebData (List Transaction)
+    , detailTransactionId : Maybe String
     }
 
 
@@ -37,12 +39,14 @@ type Msg
     = RefreshAccount
     | ShowAccount (Result Http.Error AccountInfo)
     | ShowTransactions (Result Http.Error (List Transaction))
+    | DetailTransaction (Maybe String)
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { account = Loading
       , transactions = NotAsked
+      , detailTransactionId = Nothing
       }
     , loadAccount
     )
@@ -107,19 +111,18 @@ subscriptions model =
     Sub.none
 
 
-renderAccount : AccountInfo -> Html Msg
+renderAccount : AccountInfo -> List (Html Msg)
 renderAccount ( acc, bal ) =
-    div [ class "account retail-account" ]
-        [ div [] [ text "Current account" ]
-        , div [ class "account-number" ] [ text acc.number ]
-        , div [ class "sort-code" ] [ text acc.sortCode ]
-        , div [ class "balance" ] [ text (Data.Balance.format bal) ]
-        ]
+    [ div [] [ text "Current account" ]
+    , div [ class "account-number" ] [ text acc.number ]
+    , div [ class "sort-code" ] [ text acc.sortCode ]
+    , div [ class "balance" ] [ text (Data.Balance.format bal) ]
+    ]
 
 
 renderTransaction : Transaction -> Html Msg
 renderTransaction tx =
-    tr [ class "transaction" ]
+    tr [ class "transaction", onClick (DetailTransaction (Just tx.id)) ]
         [ td [ class "created" ] [ text (Data.Transaction.formatDate tx) ]
         , td [ class "merchant" ] [ text (Data.Transaction.formatDescription tx) ]
         , td [ class "category" ] [ text (toString tx.category) ]
@@ -136,6 +139,24 @@ renderTransaction tx =
                     ""
                 else
                     (Data.Transaction.formatAmount tx)
+            ]
+        ]
+
+
+renderDetailedTransaction : Transaction -> Html Msg
+renderDetailedTransaction tx =
+    tr [ onClick (DetailTransaction (Just tx.id)) ]
+        [ td [ colspan 5 ]
+            [ text
+                ((Data.Transaction.formatTime tx)
+                    ++ (case tx.merchant of
+                            Just m ->
+                                " at " ++ m.address.formatted
+
+                            Nothing ->
+                                ""
+                       )
+                )
             ]
         ]
 

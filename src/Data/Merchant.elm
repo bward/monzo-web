@@ -23,6 +23,7 @@ type alias Address =
     , longitude : Float
     , postcode : String
     , region : String
+    , formatted: String
     }
 
 

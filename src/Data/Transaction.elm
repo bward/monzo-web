@@ -45,6 +45,10 @@ formatDate : Transaction -> String
 formatDate tx =
     format "%d %b %y" tx.created
 
+formatTime : Transaction -> String
+formatTime tx =
+    format "%H:%M" tx.created
+
 
 formatDescription : Transaction -> String
 formatDescription tx =
