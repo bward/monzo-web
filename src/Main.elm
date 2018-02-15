@@ -70,24 +70,37 @@ update msg model =
         ShowTransactions (Err e) ->
             ( model, Cmd.none )
 
+        DetailTransaction txId ->
+            let
+                oldId =
+                    model.detailTransactionId
+
+                newId =
+                    if txId == oldId then
+                        Nothing
+                    else
+                        txId
+            in
+                ( { model | detailTransactionId = newId }, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
     div [ id "wrapper" ]
         [ div [ id "account" ]
-            [ case model.account of
+            (case model.account of
                 NotAsked ->
-                    div [ class "loader" ] []
+                    [ div [ class "loader" ] [] ]
 
                 Loading ->
-                    div [ class "loader" ] []
+                    [ div [ class "loader" ] [] ]
 
                 Success accounts ->
                     renderAccount accounts
 
                 Failure _ ->
-                    p [] [ text "Something went wrong!" ]
-            ]
+                    [ p [] [ text "Something went wrong!" ] ]
+            )
         , table [ id "transactions" ]
             (case model.transactions of
                 NotAsked ->
@@ -97,12 +110,22 @@ view model =
                     [ tr [] [ td [] [ div [ class "loader" ] [] ] ] ]
 
                 Success txs ->
-                    List.map renderTransaction txs
+                    List.concatMap
+                        (\tx ->
+                            [ renderTransaction tx
+                            , if model.detailTransactionId == Just tx.id then
+                                renderDetailedTransaction tx
+                              else
+                                text ""
+                            ]
+                        )
+                        txs
 
                 Failure _ ->
                     [ tr [] [ td [] [] ] ]
             )
-        , node "link" [ rel "stylesheet", href "style.css" ] []
+        , div [ id "stats" ] []
+        , node "link" [ rel "stylesheet", href "../dist/styles/main.css" ] []
         ]
 
 

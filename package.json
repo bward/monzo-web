@@ -1,0 +1,26 @@
+{
+  "name": "monzo-web",
+  "version": "1.0.0",
+  "description": "Web frontend for Monzo written in Elm.",
+  "main": "index.js",
+  "scripts": {
+    "css": "node-sass src/styles/main.scss -o dist/styles",
+    "css:watch": "npm run css && node-sass src/styles/main.scss -wo dist/styles",
+    "watch": "elm-reactor && npm run css:watch && cpx src/index.html dist -w",
+    "build": "cpx src/index.html dist && elm-make src/Main.elm --output=dist/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bward/monzo-web.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bward/monzo-web/issues"
+  },
+  "homepage": "https://github.com/bward/monzo-web#readme",
+  "devDependencies": {
+    "cpx": "^1.5.0",
+    "node-sass": "^4.7.2"
+  }
+}
