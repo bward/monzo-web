@@ -125,7 +125,6 @@ view model =
                     [ tr [] [ td [] [] ] ]
             )
         , div [ id "stats" ] []
-        , node "link" [ rel "stylesheet", href "../dist/styles/main.css" ] []
         ]
 
 
