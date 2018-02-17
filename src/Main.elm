@@ -28,6 +28,8 @@ type alias Model =
     { account : WebData AccountInfo
     , transactions : WebData (List Transaction)
     , detailTransactionId : Maybe String
+    , page : Int
+    , transactionsPerPage : Int
     }
 
 
@@ -40,6 +42,8 @@ type Msg
     | ShowAccount (Result Http.Error AccountInfo)
     | ShowTransactions (Result Http.Error (List Transaction))
     | DetailTransaction (Maybe String)
+    | Forward
+    | Backward
 
 
 init : ( Model, Cmd Msg )
@@ -47,6 +51,8 @@ init =
     ( { account = Loading
       , transactions = NotAsked
       , detailTransactionId = Nothing
+      , page = 0
+      , transactionsPerPage = 30
       }
     , loadAccount
     )
@@ -83,6 +89,12 @@ update msg model =
             in
                 ( { model | detailTransactionId = newId }, Cmd.none )
 
+        Forward ->
+            ( { model | page = model.page - 1 }, Cmd.none )
+
+        Backward ->
+            ( { model | page = model.page + 1 }, Cmd.none )
+
 
 view : Model -> Html Msg
 view model =
@@ -90,41 +102,39 @@ view model =
         [ div [ id "header" ] [ h1 [] [ text "💰💰💰" ] ]
         , div [ id "today" ]
             (case model.account of
-                NotAsked ->
-                    loader
-
-                Loading ->
-                    loader
-
                 Success ( acc, bal ) ->
-                    [ h2 [] [ text "Today" ], h1 [] [ text (Data.Balance.format (\b -> b.spendToday) bal) ] ]
+                    [ h2 [] [ text "Today" ]
+                    , h1
+                        [ class
+                            (if bal.spendToday < 0 then
+                                "expense"
+                             else
+                                "income"
+                            )
+                        ]
+                        [ text (Data.Balance.format (\b -> abs b.spendToday) bal) ]
+                    ]
 
                 Failure _ ->
                     [ text "" ]
+
+                _ ->
+                    loader
             )
         , div [ id "account" ]
             (case model.account of
-                NotAsked ->
-                    loader
-
-                Loading ->
-                    loader
-
                 Success accounts ->
                     renderAccount accounts
 
                 Failure _ ->
                     [ p [] [ text "Something went wrong!" ] ]
+
+                _ ->
+                    loader
             )
-        , div [ id "top-controls" ] renderControls
+        , div [ id "top-controls" ] (renderControls model)
         , table [ id "transactions" ]
             (case model.transactions of
-                NotAsked ->
-                    [ tr [] [ td [] loader ] ]
-
-                Loading ->
-                    [ tr [] [ td [] loader ] ]
-
                 Success txs ->
                     List.concatMap
                         (\tx ->
@@ -135,13 +145,19 @@ view model =
                                 text ""
                             ]
                         )
-                        txs
+                        (txs
+                            |> List.drop (model.page * model.transactionsPerPage)
+                            |> List.take model.transactionsPerPage
+                        )
 
                 Failure _ ->
                     [ tr [] [ td [] [] ] ]
+
+                _ ->
+                    [ tr [] [ td [] loader ] ]
             )
         , div [ id "stats" ] loader
-        , div [ id "bottom-controls" ] renderControls
+        , div [ id "bottom-controls" ] (renderControls model)
         ]
 
 
@@ -155,11 +171,26 @@ loader =
     [ div [ class "loader" ] [] ]
 
 
-renderControls : List (Html Msg)
-renderControls =
-    [ button [] [ text "Forward" ]
-    , div [class "spacer"] []
-    , button [] [ text "Backward" ]
+renderControls : Model -> List (Html Msg)
+renderControls model =
+    [ if model.page > 0 then
+        button [ onClick Forward ] [ text "⟵" ]
+      else
+        text ""
+    , div [ class "spacer" ] []
+    , let
+        maxPages =
+            case model.transactions of
+                Success txs ->
+                    (List.length txs) // 30
+
+                _ ->
+                    0
+      in
+        if model.page < maxPages then
+            button [ onClick Backward ] [ text "⟶" ]
+        else
+            text ""
     ]
 
 
@@ -197,7 +228,7 @@ renderTransaction tx =
 
 renderDetailedTransaction : Transaction -> Html Msg
 renderDetailedTransaction tx =
-    tr [ rowspan 3, onClick (DetailTransaction (Just tx.id)) ]
+    tr [ onClick (DetailTransaction (Just tx.id)) ]
         [ td [ colspan 5 ]
             [ text
                 ((Data.Transaction.formatTime tx)
