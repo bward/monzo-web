@@ -9,7 +9,8 @@
     "watch:html": "cpx src/index.html dist --watch",
     "watch:elm": "chokidar \"**/*.elm\" -c \"elm-make src/Main.elm --output=dist/bundle.js\" --initial",
     "watch": "npm-run-all --parallel watch:elm watch:html watch:css",
-    "build": "npm run css && cpx src/index.html dist && cpx src/config.json dist && elm-make src/Main.elm --output=dist/bundle.js"
+    "build": "npm run css && cpx src/index.html dist && cpx src/config.json dist && elm-make src/Main.elm --output=dist/bundle.js",
+    "publish": "npm run build && node publish.js"
   },
   "repository": {
     "type": "git",
