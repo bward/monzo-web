@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="main.css" />
+	</head>
+	<body>
+		<script src="bundle.js"></script>
+		<script>
+            var redirectUrl = "https://bward.github.io/monzo-web";
+            var clientId = "oauthclient_00009TjTGIs0Pc3YvCSU7N";
+
+			var urlParams = new URLSearchParams(window.location.search);
+			var authorizationCode = urlParams.get("code");
+
+            if (!authorizationCode) {
+                window.location.replace(`https://auth.monzo.com/?client_id=${clientId}&redirect_uri=${redirectUrl}&response_type=code&state=${Math.random().toString(36).substr(2)}`);
+            } else {
+				fetch("config.json")
+				.then(res => res.json())
+				.then(config => Elm.Main.fullscreen({authorizationCode, config}));
+            }
+		</script>
+	</body>
+</html>
