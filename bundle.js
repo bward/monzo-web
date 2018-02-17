@@ -10483,53 +10483,29 @@ var _bward$monzo_web$Request_AccessToken$accessToken = A3(
 					_NoRedInk$elm_decode_pipeline$Json_Decode_Pipeline$decode(_bward$monzo_web$Data_AccessToken$AccessToken))))));
 var _bward$monzo_web$Request_AccessToken$exchangeAuthorizationCode = F2(
 	function (config, code) {
-		var body = _elm_lang$core$Json_Encode$object(
+		var body = _elm_lang$http$Http$multipartBody(
 			{
 				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'grant_type',
-					_1: _elm_lang$core$Json_Encode$string('authorization_code')
-				},
+				_0: A2(_elm_lang$http$Http$stringPart, 'grant_type', 'authorization_code'),
 				_1: {
 					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'client_id',
-						_1: _elm_lang$core$Json_Encode$string(config.clientId)
-					},
+					_0: A2(_elm_lang$http$Http$stringPart, 'client_id', config.clientId),
 					_1: {
 						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'client_secret',
-							_1: _elm_lang$core$Json_Encode$string(config.clientSecret)
-						},
+						_0: A2(_elm_lang$http$Http$stringPart, 'client_secret', config.clientSecret),
 						_1: {
 							ctor: '::',
-							_0: {
-								ctor: '_Tuple2',
-								_0: 'redirect_uri',
-								_1: _elm_lang$core$Json_Encode$string(config.redirectUri)
-							},
+							_0: A2(_elm_lang$http$Http$stringPart, 'redirect_uri', config.redirectUri),
 							_1: {
 								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'code',
-									_1: _elm_lang$core$Json_Encode$string(code)
-								},
+								_0: A2(_elm_lang$http$Http$stringPart, 'code', code),
 								_1: {ctor: '[]'}
 							}
 						}
 					}
 				}
 			});
-		return A3(
-			_elm_lang$http$Http$post,
-			'https://api.monzo.com/oauth2/token',
-			_elm_lang$http$Http$jsonBody(body),
-			_bward$monzo_web$Request_AccessToken$accessToken);
+		return A3(_elm_lang$http$Http$post, 'https://api.monzo.com/oauth2/token', body, _bward$monzo_web$Request_AccessToken$accessToken);
 	});
 
 var _bward$monzo_web$Main$renderAccount = function (_p0) {
