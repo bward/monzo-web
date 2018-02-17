@@ -5,6 +5,7 @@ import Json.Decode.Pipeline exposing (decode, required)
 import Http
 import Task
 import Request.Helpers exposing (authorisedGet)
+import Data.AccessToken exposing (..)
 import Data.Account exposing (..)
 
 
@@ -37,7 +38,7 @@ accounts =
     field "accounts" (index 0 account)
 
 
-getAccount : Task.Task Http.Error Account
-getAccount =
-    authorisedGet "accounts?account_type=uk_retail" accounts
+getAccount : AccessToken -> Task.Task Http.Error Account
+getAccount token =
+    authorisedGet token "accounts?account_type=uk_retail" accounts
         |> Http.toTask

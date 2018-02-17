@@ -6,14 +6,15 @@ import Task
 import Http
 import Data.Account exposing (..)
 import Data.Transaction exposing (..)
+import Data.AccessToken exposing (..)
 import Request.Balance exposing (currency)
 import Request.Merchant exposing (merchant)
 import Request.Helpers exposing (authorisedGet, date, category)
 
 
-getTransactions : Account -> Task.Task Http.Error (List Transaction)
-getTransactions acc =
-    authorisedGet ("transactions?expand[]=merchant&account_id=" ++ acc.id) transactions
+getTransactions : AccessToken -> Account -> Task.Task Http.Error (List Transaction)
+getTransactions token acc =
+    authorisedGet token ("transactions?expand[]=merchant&account_id=" ++ acc.id) transactions 
         |> Http.toTask
         |> Task.map List.reverse
 

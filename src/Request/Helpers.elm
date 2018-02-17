@@ -3,15 +3,15 @@ module Request.Helpers exposing (..)
 import Http
 import Json.Decode exposing (Decoder, string, andThen, succeed, fail, map)
 import Date exposing (Date)
+import Data.AccessToken exposing (..)
 import Data.Category exposing (Category(..))
-import Config
 
 
-authorisedGet : String -> Decoder a -> Http.Request a
-authorisedGet url jsonDecoder =
+authorisedGet : AccessToken -> String -> Decoder a -> Http.Request a
+authorisedGet token url jsonDecoder =
     Http.request
         { method = "GET"
-        , headers = [ Http.header "Authorization" ("Bearer " ++ Config.accessToken) ]
+        , headers = [ Http.header "Authorization" ("Bearer " ++ token.token) ]
         , url = "https://api.monzo.com/" ++ url
         , body = Http.emptyBody
         , expect = Http.expectJson jsonDecoder

@@ -6,26 +6,37 @@ import Html.Events exposing (onClick)
 import Http
 import Task
 import RemoteData exposing (WebData, RemoteData(..))
+import Data.AccessToken exposing (AccessToken)
 import Data.Account
 import Data.Balance exposing (Balance)
+import Data.Config exposing (Config)
 import Data.Transaction exposing (Transaction)
 import Request.Account exposing (getAccount)
 import Request.Balance exposing (addBalance)
 import Request.Transaction exposing (getTransactions)
+import Request.AccessToken exposing (exchangeAuthorizationCode)
 
 
-main : Program Never Model Msg
+main : Program Flags Model Msg
 main =
-    Html.program
+    Html.programWithFlags
         { init = init
         , view = view
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = (\_ -> Sub.none)
         }
 
 
+type alias Flags =
+    { config : Config
+    , authorizationCode : String
+    }
+
+
 type alias Model =
-    { account : WebData AccountInfo
+    { config : Config
+    , accessToken : WebData AccessToken
+    , account : WebData AccountInfo
     , transactions : WebData (List Transaction)
     , detailTransactionId : Maybe String
     , page : Int
@@ -38,7 +49,7 @@ type alias AccountInfo =
 
 
 type Msg
-    = RefreshAccount
+    = LoadAccount (Result Http.Error AccessToken)
     | ShowAccount (Result Http.Error AccountInfo)
     | ShowTransactions (Result Http.Error (List Transaction))
     | DetailTransaction (Maybe String)
@@ -46,29 +57,39 @@ type Msg
     | Backward
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( { account = Loading
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( { config = flags.config
+      , accessToken = Loading
+      , account = NotAsked
       , transactions = NotAsked
       , detailTransactionId = Nothing
       , page = 0
       , transactionsPerPage = 30
       }
-    , loadAccount
+    , exchangeCode flags.config flags.authorizationCode
     )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        RefreshAccount ->
-            ( model, loadAccount )
+        LoadAccount (Ok token) ->
+            ( { model | accessToken = Success token }, loadAccount token )
+
+        LoadAccount (Err e) ->
+            ( { model | accessToken = Failure e }, Cmd.none )
 
         ShowAccount (Ok ( acc, bal )) ->
-            ( { model | account = Success ( acc, bal ), transactions = Loading }, loadTransactions acc )
+            case model.accessToken of
+                Success token ->
+                    ( { model | account = Success ( acc, bal ), transactions = Loading }, loadTransactions token acc )
 
-        ShowAccount (Err err) ->
-            ( { model | account = Failure err }, Cmd.none )
+                _ ->
+                    ( model, Cmd.none )
+
+        ShowAccount (Err e) ->
+            ( { model | account = Failure e }, Cmd.none )
 
         ShowTransactions (Ok txs) ->
             ( { model | transactions = Success txs }, Cmd.none )
@@ -161,9 +182,10 @@ view model =
         ]
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+exchangeCode : Config -> String -> Cmd Msg
+exchangeCode config code =
+    exchangeAuthorizationCode config code
+        |> Http.send LoadAccount
 
 
 loader : List (Html Msg)
@@ -244,14 +266,14 @@ renderDetailedTransaction tx =
         ]
 
 
-loadAccount : Cmd Msg
-loadAccount =
-    getAccount
-        |> Task.andThen addBalance
+loadAccount : AccessToken -> Cmd Msg
+loadAccount accessToken =
+    getAccount accessToken
+        |> Task.andThen (addBalance accessToken)
         |> Task.attempt ShowAccount
 
 
-loadTransactions : Data.Account.Account -> Cmd Msg
-loadTransactions acc =
-    getTransactions acc
+loadTransactions : AccessToken -> Data.Account.Account -> Cmd Msg
+loadTransactions accessToken acc =
+    getTransactions accessToken acc
         |> Task.attempt ShowTransactions
