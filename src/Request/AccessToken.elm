@@ -2,7 +2,6 @@ module Request.AccessToken exposing (exchangeAuthorizationCode)
 
 import Json.Decode exposing (Decoder, string, int, field, index, andThen, map, fail, succeed)
 import Json.Decode.Pipeline exposing (decode, required)
-import Json.Encode as Encode
 import Http
 import Data.AccessToken exposing (..)
 import Data.Config exposing (..)
@@ -12,16 +11,15 @@ exchangeAuthorizationCode : Config -> String -> Http.Request AccessToken
 exchangeAuthorizationCode config code =
     let
         body =
-            Encode.object
-                [ ( "grant_type", Encode.string "authorization_code" ) 
-                , ( "client_id", Encode.string config.clientId)
-                , ( "client_secret", Encode.string config.clientSecret)
-                , ( "redirect_uri", Encode.string config.redirectUri )
-                , ( "code", Encode.string code)
+            Http.multipartBody
+                [ (Http.stringPart "grant_type" "authorization_code")
+                , (Http.stringPart "client_id" config.clientId)
+                , (Http.stringPart "client_secret" config.clientSecret)
+                , (Http.stringPart "redirect_uri" config.redirectUri)
+                , (Http.stringPart "code" code)
                 ]
-
     in
-        Http.post "https://api.monzo.com/oauth2/token" (Http.jsonBody body) accessToken
+        Http.post "https://api.monzo.com/oauth2/token" body accessToken
 
 
 accessToken : Decoder AccessToken
