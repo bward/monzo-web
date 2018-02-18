@@ -16,7 +16,7 @@
 			function startApp(authorizationCode, config) {
 				var app = Elm.Main.fullscreen({authorizationCode, config, accessToken: null});
 				app.ports.saveAccessToken.subscribe(accessToken => {
-					window.localStorage.setItem("accessToken", accessToken);
+					window.localStorage.setItem("accessToken", JSON.stringify(accessToken));
 				});
 			}
 
@@ -30,7 +30,7 @@
 				var urlParams = new URLSearchParams(window.location.search);
 				var authorizationCode = urlParams.get("code");
 				var state = urlParams.get("state");
-				var accessToken = window.localStorage.getItem("accessToken");
+				var accessToken = JSON.parse(window.localStorage.getItem("accessToken"));
 
 				if (accessToken) {
 					startAppWithToken(accessToken, config);
