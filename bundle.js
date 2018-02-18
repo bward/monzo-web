@@ -10508,8 +10508,8 @@ var _bward$monzo_web$Request_AccessToken$exchangeAuthorizationCode = F2(
 		return A3(_elm_lang$http$Http$post, 'https://api.monzo.com/oauth2/token', body, _bward$monzo_web$Request_AccessToken$accessToken);
 	});
 
-var _bward$monzo_web$Ports$saveToken = _elm_lang$core$Native_Platform.outgoingPort(
-	'saveToken',
+var _bward$monzo_web$Ports$saveAccessToken = _elm_lang$core$Native_Platform.outgoingPort(
+	'saveAccessToken',
 	function (v) {
 		return {token: v.token, clientId: v.clientId, expiresIn: v.expiresIn, tokenType: v.tokenType, userId: v.userId};
 	});
@@ -11067,7 +11067,7 @@ var _bward$monzo_web$Main$update = F2(
 								_0: _bward$monzo_web$Main$loadAccount(_p10),
 								_1: {
 									ctor: '::',
-									_0: _bward$monzo_web$Ports$saveToken(_p10),
+									_0: _bward$monzo_web$Ports$saveAccessToken(_p10),
 									_1: {ctor: '[]'}
 								}
 							})
