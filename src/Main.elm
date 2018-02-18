@@ -15,6 +15,7 @@ import Request.Account exposing (getAccount)
 import Request.Balance exposing (addBalance)
 import Request.Transaction exposing (getTransactions)
 import Request.AccessToken exposing (exchangeAuthorizationCode)
+import Ports
 
 
 main : Program Flags Model Msg
@@ -29,7 +30,8 @@ main =
 
 type alias Flags =
     { config : Config
-    , authorizationCode : String
+    , authorizationCode : Maybe String
+    , accessToken : Maybe AccessToken
     }
 
 
@@ -60,14 +62,28 @@ type Msg
 init : Flags -> ( Model, Cmd Msg )
 init flags =
     ( { config = flags.config
-      , accessToken = Loading
+      , accessToken =
+            case flags.accessToken of
+                Just token ->
+                    Success token
+
+                Nothing ->
+                    Loading
       , account = NotAsked
       , transactions = NotAsked
       , detailTransactionId = Nothing
       , page = 0
       , transactionsPerPage = 30
       }
-    , exchangeCode flags.config flags.authorizationCode
+    , case ( flags.accessToken, flags.authorizationCode ) of
+        ( Just token, _ ) ->
+            loadAccount token
+
+        ( _, Just code ) ->
+            exchangeCode flags.config code
+
+        _ ->
+            Cmd.none
     )
 
 
@@ -75,7 +91,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         LoadAccount (Ok token) ->
-            ( { model | accessToken = Success token }, loadAccount token )
+            ( { model | accessToken = Success token }, Cmd.batch [ loadAccount token, Ports.saveAccessToken token ] )
 
         LoadAccount (Err e) ->
             ( { model | accessToken = Failure e }, Cmd.none )
