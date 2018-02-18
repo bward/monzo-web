@@ -15,7 +15,7 @@
 
 			function startApp(authorizationCode, config) {
 				var app = Elm.Main.fullscreen({authorizationCode, config});
-				app.ports.saveToken.subscribe((expires, token) => {
+				app.ports.saveToken.subscribe(token => {
 					window.localStorage.setItem("token", token.token);
 				});
 			}
