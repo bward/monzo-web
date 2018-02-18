@@ -14,14 +14,14 @@
 			}
 
 			function startApp(authorizationCode, config) {
-				var app = Elm.Main.fullscreen({authorizationCode, config});
+				var app = Elm.Main.fullscreen({authorizationCode, config, accessToken: null});
 				app.ports.saveToken.subscribe(token => {
 					window.localStorage.setItem("token", token.token);
 				});
 			}
 
 			function startAppWithToken(accessToken, config) {
-				var app = Elm.Main.fullscreen({accessToken, config});
+				var app = Elm.Main.fullscreen({accessToken, config, authorizationCode: null});
 			}
 
 			fetch("config.json")

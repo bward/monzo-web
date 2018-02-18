@@ -10593,9 +10593,9 @@ var _bward$monzo_web$Main$loader = {
 		{ctor: '[]'}),
 	_1: {ctor: '[]'}
 };
-var _bward$monzo_web$Main$Flags = F2(
-	function (a, b) {
-		return {config: a, authorizationCode: b};
+var _bward$monzo_web$Main$Flags = F3(
+	function (a, b, c) {
+		return {config: a, authorizationCode: b, accessToken: c};
 	});
 var _bward$monzo_web$Main$Model = F7(
 	function (a, b, c, d, e, f, g) {
@@ -11169,8 +11169,42 @@ var _bward$monzo_web$Main$exchangeCode = F2(
 var _bward$monzo_web$Main$init = function (flags) {
 	return {
 		ctor: '_Tuple2',
-		_0: {config: flags.config, accessToken: _krisajenkins$remotedata$RemoteData$Loading, account: _krisajenkins$remotedata$RemoteData$NotAsked, transactions: _krisajenkins$remotedata$RemoteData$NotAsked, detailTransactionId: _elm_lang$core$Maybe$Nothing, page: 0, transactionsPerPage: 30},
-		_1: A2(_bward$monzo_web$Main$exchangeCode, flags.config, flags.authorizationCode)
+		_0: {
+			config: flags.config,
+			accessToken: function () {
+				var _p14 = flags.accessToken;
+				if (_p14.ctor === 'Just') {
+					return _krisajenkins$remotedata$RemoteData$Success(_p14._0);
+				} else {
+					return _krisajenkins$remotedata$RemoteData$Loading;
+				}
+			}(),
+			account: _krisajenkins$remotedata$RemoteData$NotAsked,
+			transactions: _krisajenkins$remotedata$RemoteData$NotAsked,
+			detailTransactionId: _elm_lang$core$Maybe$Nothing,
+			page: 0,
+			transactionsPerPage: 30
+		},
+		_1: function () {
+			var _p15 = {ctor: '_Tuple2', _0: flags.accessToken, _1: flags.authorizationCode};
+			_v9_2:
+			do {
+				if (_p15.ctor === '_Tuple2') {
+					if (_p15._0.ctor === 'Just') {
+						return _bward$monzo_web$Main$loadAccount(_p15._0._0);
+					} else {
+						if (_p15._1.ctor === 'Just') {
+							return A2(_bward$monzo_web$Main$exchangeCode, flags.config, _p15._1._0);
+						} else {
+							break _v9_2;
+						}
+					}
+				} else {
+					break _v9_2;
+				}
+			} while(false);
+			return _elm_lang$core$Platform_Cmd$none;
+		}()
 	};
 };
 var _bward$monzo_web$Main$main = _elm_lang$html$Html$programWithFlags(
@@ -11178,41 +11212,99 @@ var _bward$monzo_web$Main$main = _elm_lang$html$Html$programWithFlags(
 		init: _bward$monzo_web$Main$init,
 		view: _bward$monzo_web$Main$view,
 		update: _bward$monzo_web$Main$update,
-		subscriptions: function (_p14) {
+		subscriptions: function (_p16) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
-		function (authorizationCode) {
+		function (accessToken) {
 			return A2(
 				_elm_lang$core$Json_Decode$andThen,
-				function (config) {
-					return _elm_lang$core$Json_Decode$succeed(
-						{authorizationCode: authorizationCode, config: config});
+				function (authorizationCode) {
+					return A2(
+						_elm_lang$core$Json_Decode$andThen,
+						function (config) {
+							return _elm_lang$core$Json_Decode$succeed(
+								{accessToken: accessToken, authorizationCode: authorizationCode, config: config});
+						},
+						A2(
+							_elm_lang$core$Json_Decode$field,
+							'config',
+							A2(
+								_elm_lang$core$Json_Decode$andThen,
+								function (clientId) {
+									return A2(
+										_elm_lang$core$Json_Decode$andThen,
+										function (clientSecret) {
+											return A2(
+												_elm_lang$core$Json_Decode$andThen,
+												function (redirectUri) {
+													return _elm_lang$core$Json_Decode$succeed(
+														{clientId: clientId, clientSecret: clientSecret, redirectUri: redirectUri});
+												},
+												A2(_elm_lang$core$Json_Decode$field, 'redirectUri', _elm_lang$core$Json_Decode$string));
+										},
+										A2(_elm_lang$core$Json_Decode$field, 'clientSecret', _elm_lang$core$Json_Decode$string));
+								},
+								A2(_elm_lang$core$Json_Decode$field, 'clientId', _elm_lang$core$Json_Decode$string))));
 				},
 				A2(
 					_elm_lang$core$Json_Decode$field,
-					'config',
-					A2(
-						_elm_lang$core$Json_Decode$andThen,
-						function (clientId) {
-							return A2(
+					'authorizationCode',
+					_elm_lang$core$Json_Decode$oneOf(
+						{
+							ctor: '::',
+							_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+							_1: {
+								ctor: '::',
+								_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$string),
+								_1: {ctor: '[]'}
+							}
+						})));
+		},
+		A2(
+			_elm_lang$core$Json_Decode$field,
+			'accessToken',
+			_elm_lang$core$Json_Decode$oneOf(
+				{
+					ctor: '::',
+					_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$core$Json_Decode$map,
+							_elm_lang$core$Maybe$Just,
+							A2(
 								_elm_lang$core$Json_Decode$andThen,
-								function (clientSecret) {
+								function (clientId) {
 									return A2(
 										_elm_lang$core$Json_Decode$andThen,
-										function (redirectUri) {
-											return _elm_lang$core$Json_Decode$succeed(
-												{clientId: clientId, clientSecret: clientSecret, redirectUri: redirectUri});
+										function (expiresIn) {
+											return A2(
+												_elm_lang$core$Json_Decode$andThen,
+												function (token) {
+													return A2(
+														_elm_lang$core$Json_Decode$andThen,
+														function (tokenType) {
+															return A2(
+																_elm_lang$core$Json_Decode$andThen,
+																function (userId) {
+																	return _elm_lang$core$Json_Decode$succeed(
+																		{clientId: clientId, expiresIn: expiresIn, token: token, tokenType: tokenType, userId: userId});
+																},
+																A2(_elm_lang$core$Json_Decode$field, 'userId', _elm_lang$core$Json_Decode$string));
+														},
+														A2(_elm_lang$core$Json_Decode$field, 'tokenType', _elm_lang$core$Json_Decode$string));
+												},
+												A2(_elm_lang$core$Json_Decode$field, 'token', _elm_lang$core$Json_Decode$string));
 										},
-										A2(_elm_lang$core$Json_Decode$field, 'redirectUri', _elm_lang$core$Json_Decode$string));
+										A2(_elm_lang$core$Json_Decode$field, 'expiresIn', _elm_lang$core$Json_Decode$int));
 								},
-								A2(_elm_lang$core$Json_Decode$field, 'clientSecret', _elm_lang$core$Json_Decode$string));
-						},
-						A2(_elm_lang$core$Json_Decode$field, 'clientId', _elm_lang$core$Json_Decode$string))));
-		},
-		A2(_elm_lang$core$Json_Decode$field, 'authorizationCode', _elm_lang$core$Json_Decode$string)));
+								A2(_elm_lang$core$Json_Decode$field, 'clientId', _elm_lang$core$Json_Decode$string))),
+						_1: {ctor: '[]'}
+					}
+				}))));
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
