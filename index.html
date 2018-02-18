@@ -1,47 +1,47 @@
 <!DOCTYPE HTML>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<link rel="stylesheet" href="main.css" />
-	</head>
-	<body>
-		<script src="bundle.js"></script>
-		<script>
-			function redirectToAuth(config) {
-				var state = Math.random().toString(36).substr(2);
-				window.localStorage.setItem("state", state);
-				window.location.replace(`https://auth.monzo.com/?client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=code&state=${state}`);
-			}
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="main.css" />
+    </head>
+    <body>
+        <script src="bundle.js"></script>
+        <script>
+            function redirectToAuth(config) {
+                var state = Math.random().toString(36).substr(2);
+                window.localStorage.setItem("state", state);
+                window.location.replace(`https://auth.monzo.com/?client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=code&state=${state}`);
+            }
 
-			function startApp(authorizationCode, config) {
-				var app = Elm.Main.fullscreen({authorizationCode, config, accessToken: null});
-				app.ports.saveAccessToken.subscribe(accessToken => {
-					window.localStorage.setItem("accessToken", JSON.stringify(accessToken));
-				});
-			}
+            function startApp(authorizationCode, config) {
+                var app = Elm.Main.fullscreen({authorizationCode, config, accessToken: null});
+                app.ports.saveAccessToken.subscribe(accessToken => {
+                    window.localStorage.setItem("accessToken", JSON.stringify(accessToken));
+                });
+            }
 
-			function startAppWithToken(accessToken, config) {
-				var app = Elm.Main.fullscreen({accessToken, config, authorizationCode: null});
-			}
+            function startAppWithToken(accessToken, config) {
+                var app = Elm.Main.fullscreen({accessToken, config, authorizationCode: null});
+            }
 
-			fetch("config.json")
-			.then(res => res.json())
-			.then(config => {
-				var urlParams = new URLSearchParams(window.location.search);
-				var authorizationCode = urlParams.get("code");
-				var state = urlParams.get("state");
-				var accessToken = JSON.parse(window.localStorage.getItem("accessToken"));
+            fetch("config.json")
+            .then(res => res.json())
+            .then(config => {
+                var urlParams = new URLSearchParams(window.location.search);
+                var authorizationCode = urlParams.get("code");
+                var state = urlParams.get("state");
+                var accessToken = JSON.parse(window.localStorage.getItem("accessToken"));
 
-				if (accessToken) {
-					startAppWithToken(accessToken, config);
-				} else if (!authorizationCode) {
-					redirectToAuth(config);
-				} else if (!state || state !== window.localStorage.getItem("state")) {
-					console.log("oh dear, authentication problem!");
-				} else {
-					startApp(authorizationCode, config);
-				}
-			});
-	</script>
-	</body>
+                if (accessToken) {
+                    startAppWithToken(accessToken, config);
+                } else if (!authorizationCode) {
+                    redirectToAuth(config);
+                } else if (!state || state !== window.localStorage.getItem("state")) {
+                    console.log("oh dear, authentication problem!");
+                } else {
+                    startApp(authorizationCode, config);
+                }
+            });
+    </script>
+    </body>
 </html>
