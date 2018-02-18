@@ -7,16 +7,39 @@
 	<body>
 		<script src="bundle.js"></script>
 		<script>
-			var urlParams = new URLSearchParams(window.location.search);
-			var authorizationCode = urlParams.get("code");
+			function redirectToAuth(config) {
+				var state = Math.random().toString(36).substr(2);
+				window.localStorage.setItem("state", state);
+				window.location.replace(`https://auth.monzo.com/?client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=code&state=${state}`);
+			}
+
+			function startApp(authorizationCode, config) {
+				var app = Elm.Main.fullscreen({authorizationCode, config});
+				app.ports.saveToken.subscribe((expires, token) => {
+					window.localStorage.setItem("token", token.token);
+				});
+			}
+
+			function startAppWithToken(accessToken, config) {
+				var app = Elm.Main.fullscreen({accessToken, config});
+			}
 
 			fetch("config.json")
 			.then(res => res.json())
 			.then(config => {
-				if (!authorizationCode) {
-					window.location.replace(`https://auth.monzo.com/?client_id=${config.clientId}&redirect_uri=${config.redirectUri}&response_type=code&state=${Math.random().toString(36).substr(2)}`);
+				var urlParams = new URLSearchParams(window.location.search);
+				var authorizationCode = urlParams.get("code");
+				var state = urlParams.get("state");
+				var accessToken = window.localStorage.getItem("token");
+
+				if (accessToken) {
+					startAppWithToken(token, config);
+				} else if (!authorizationCode) {
+					redirectToAuth(config);
+				} else if (!state || state !== window.localStorage.getItem("state")) {
+					console.log("oh dear, authentication problem!");
 				} else {
-					Elm.Main.fullscreen({authorizationCode, config});
+					startApp(authorizationCode, config);
 				}
 			});
 	</script>
