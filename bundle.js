@@ -10581,15 +10581,6 @@ var _bward$monzo_web$Main$renderAccount = function (_p0) {
 		}
 	};
 };
-var _bward$monzo_web$Main$mapTuple = F2(
-	function (f, _p3) {
-		var _p4 = _p3;
-		return {
-			ctor: '_Tuple2',
-			_0: f(_p4._0),
-			_1: f(_p4._1)
-		};
-	});
 var _bward$monzo_web$Main$loader = {
 	ctor: '::',
 	_0: A2(
@@ -10613,116 +10604,54 @@ var _bward$monzo_web$Main$Model = F7(
 var _bward$monzo_web$Main$Backward = {ctor: 'Backward'};
 var _bward$monzo_web$Main$Forward = {ctor: 'Forward'};
 var _bward$monzo_web$Main$renderControls = function (model) {
-	var maxPages = function () {
-		var _p5 = model.transactions;
-		if (_p5.ctor === 'Success') {
-			return (_elm_lang$core$List$length(_p5._0) / model.transactionsPerPage) | 0;
-		} else {
-			return 0;
-		}
-	}();
-	var _p6 = function () {
-		var _p7 = model.transactions;
-		if (_p7.ctor === 'Success') {
-			var _p9 = _p7._0;
-			return A2(
-				_bward$monzo_web$Main$mapTuple,
-				function (_p8) {
-					return A2(
-						_elm_lang$core$Maybe$map,
-						_bward$monzo_web$Data_Transaction$formatDate,
-						_elm_lang$core$List$head(_p8));
-				},
-				{
-					ctor: '_Tuple2',
-					_0: A2(_elm_lang$core$List$drop, model.transactionsPerPage * model.page, _p9),
-					_1: _elm_lang$core$List$reverse(
-						A2(
-							_elm_lang$core$List$take,
-							model.transactionsPerPage,
-							A2(_elm_lang$core$List$drop, model.transactionsPerPage * model.page, _p9)))
-				});
-		} else {
-			return {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing};
-		}
-	}();
-	var startDate = _p6._0;
-	var endDate = _p6._1;
-	var dateRange = function () {
-		var _p10 = {ctor: '_Tuple2', _0: startDate, _1: endDate};
-		if ((_p10.ctor === '_Tuple2') && (_p10._0.ctor === 'Just')) {
-			if (_p10._1.ctor === 'Just') {
-				return A2(
-					_elm_lang$core$Basics_ops['++'],
-					_p10._0._0,
-					A2(_elm_lang$core$Basics_ops['++'], ' - ', _p10._1._0));
-			} else {
-				return _p10._0._0;
-			}
-		} else {
-			return '';
-		}
-	}();
 	return {
 		ctor: '::',
-		_0: A2(
+		_0: (_elm_lang$core$Native_Utils.cmp(model.page, 0) > 0) ? A2(
 			_elm_lang$html$Html$button,
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html_Events$onClick(_bward$monzo_web$Main$Forward),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$style(
-						(_elm_lang$core$Native_Utils.cmp(model.page, 0) > 0) ? {ctor: '[]'} : {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'visibility', _1: 'hidden'},
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}
+				_1: {ctor: '[]'}
 			},
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html$text('⟵'),
 				_1: {ctor: '[]'}
-			}),
+			}) : _elm_lang$html$Html$text(''),
 		_1: {
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$div,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('range'),
+					_0: _elm_lang$html$Html_Attributes$class('spacer'),
 					_1: {ctor: '[]'}
 				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(dateRange),
-					_1: {ctor: '[]'}
-				}),
+				{ctor: '[]'}),
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$button,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onClick(_bward$monzo_web$Main$Backward),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$style(
-								(_elm_lang$core$Native_Utils.cmp(model.page, maxPages) < 0) ? {ctor: '[]'} : {
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'visibility', _1: 'hidden'},
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
+				_0: function () {
+					var maxPages = function () {
+						var _p3 = model.transactions;
+						if (_p3.ctor === 'Success') {
+							return (_elm_lang$core$List$length(_p3._0) / 30) | 0;
+						} else {
+							return 0;
 						}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text('⟶'),
-						_1: {ctor: '[]'}
-					}),
+					}();
+					return (_elm_lang$core$Native_Utils.cmp(model.page, maxPages) < 0) ? A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_bward$monzo_web$Main$Backward),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('⟶'),
+							_1: {ctor: '[]'}
+						}) : _elm_lang$html$Html$text('');
+				}(),
 				_1: {ctor: '[]'}
 			}
 		}
@@ -10853,9 +10782,9 @@ var _bward$monzo_web$Main$renderDetailedTransaction = function (tx) {
 							_elm_lang$core$Basics_ops['++'],
 							_bward$monzo_web$Data_Transaction$formatTime(tx),
 							function () {
-								var _p11 = tx.merchant;
-								if (_p11.ctor === 'Just') {
-									return A2(_elm_lang$core$Basics_ops['++'], ' at ', _p11._0.address.formatted);
+								var _p4 = tx.merchant;
+								if (_p4.ctor === 'Just') {
+									return A2(_elm_lang$core$Basics_ops['++'], ' at ', _p4._0.address.formatted);
 								} else {
 									return '';
 								}
@@ -10904,13 +10833,13 @@ var _bward$monzo_web$Main$view = function (model) {
 						_1: {ctor: '[]'}
 					},
 					function () {
-						var _p12 = model.account;
-						_v6_2:
+						var _p5 = model.account;
+						_v3_2:
 						do {
-							switch (_p12.ctor) {
+							switch (_p5.ctor) {
 								case 'Success':
-									if (_p12._0.ctor === '_Tuple2') {
-										var _p13 = _p12._0._1;
+									if (_p5._0.ctor === '_Tuple2') {
+										var _p6 = _p5._0._1;
 										return {
 											ctor: '::',
 											_0: A2(
@@ -10928,7 +10857,7 @@ var _bward$monzo_web$Main$view = function (model) {
 													{
 														ctor: '::',
 														_0: _elm_lang$html$Html_Attributes$class(
-															(_elm_lang$core$Native_Utils.cmp(_p13.spendToday, 0) < 0) ? 'expense' : 'income'),
+															(_elm_lang$core$Native_Utils.cmp(_p6.spendToday, 0) < 0) ? 'expense' : 'income'),
 														_1: {ctor: '[]'}
 													},
 													{
@@ -10939,14 +10868,14 @@ var _bward$monzo_web$Main$view = function (model) {
 																function (b) {
 																	return _elm_lang$core$Basics$abs(b.spendToday);
 																},
-																_p13)),
+																_p6)),
 														_1: {ctor: '[]'}
 													}),
 												_1: {ctor: '[]'}
 											}
 										};
 									} else {
-										break _v6_2;
+										break _v3_2;
 									}
 								case 'Failure':
 									return {
@@ -10955,7 +10884,7 @@ var _bward$monzo_web$Main$view = function (model) {
 										_1: {ctor: '[]'}
 									};
 								default:
-									break _v6_2;
+									break _v3_2;
 							}
 						} while(false);
 						return _bward$monzo_web$Main$loader;
@@ -10970,10 +10899,10 @@ var _bward$monzo_web$Main$view = function (model) {
 							_1: {ctor: '[]'}
 						},
 						function () {
-							var _p14 = model.account;
-							switch (_p14.ctor) {
+							var _p7 = model.account;
+							switch (_p7.ctor) {
 								case 'Success':
-									return _bward$monzo_web$Main$renderAccount(_p14._0);
+									return _bward$monzo_web$Main$renderAccount(_p7._0);
 								case 'Failure':
 									return {
 										ctor: '::',
@@ -11011,8 +10940,8 @@ var _bward$monzo_web$Main$view = function (model) {
 									_1: {ctor: '[]'}
 								},
 								function () {
-									var _p15 = model.transactions;
-									switch (_p15.ctor) {
+									var _p8 = model.transactions;
+									switch (_p8.ctor) {
 										case 'Success':
 											return A2(
 												_elm_lang$core$List$concatMap,
@@ -11032,7 +10961,7 @@ var _bward$monzo_web$Main$view = function (model) {
 												A2(
 													_elm_lang$core$List$take,
 													model.transactionsPerPage,
-													A2(_elm_lang$core$List$drop, model.page * model.transactionsPerPage, _p15._0)));
+													A2(_elm_lang$core$List$drop, model.page * model.transactionsPerPage, _p8._0)));
 										case 'Failure':
 											return {
 												ctor: '::',
@@ -11120,25 +11049,25 @@ var _bward$monzo_web$Main$loadAccount = function (accessToken) {
 };
 var _bward$monzo_web$Main$update = F2(
 	function (msg, model) {
-		var _p16 = msg;
-		switch (_p16.ctor) {
+		var _p9 = msg;
+		switch (_p9.ctor) {
 			case 'LoadAccount':
-				if (_p16._0.ctor === 'Ok') {
-					var _p17 = _p16._0._0;
+				if (_p9._0.ctor === 'Ok') {
+					var _p10 = _p9._0._0;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								accessToken: _krisajenkins$remotedata$RemoteData$Success(_p17)
+								accessToken: _krisajenkins$remotedata$RemoteData$Success(_p10)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$batch(
 							{
 								ctor: '::',
-								_0: _bward$monzo_web$Main$loadAccount(_p17),
+								_0: _bward$monzo_web$Main$loadAccount(_p10),
 								_1: {
 									ctor: '::',
-									_0: _bward$monzo_web$Ports$saveAccessToken(_p17),
+									_0: _bward$monzo_web$Ports$saveAccessToken(_p10),
 									_1: {ctor: '[]'}
 								}
 							})
@@ -11149,26 +11078,26 @@ var _bward$monzo_web$Main$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								accessToken: _krisajenkins$remotedata$RemoteData$Failure(_p16._0._0)
+								accessToken: _krisajenkins$remotedata$RemoteData$Failure(_p9._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'ShowAccount':
-				if (_p16._0.ctor === 'Ok') {
-					var _p19 = _p16._0._0._0;
-					var _p18 = model.accessToken;
-					if (_p18.ctor === 'Success') {
+				if (_p9._0.ctor === 'Ok') {
+					var _p12 = _p9._0._0._0;
+					var _p11 = model.accessToken;
+					if (_p11.ctor === 'Success') {
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
 								{
 									account: _krisajenkins$remotedata$RemoteData$Success(
-										{ctor: '_Tuple2', _0: _p19, _1: _p16._0._0._1}),
+										{ctor: '_Tuple2', _0: _p12, _1: _p9._0._0._1}),
 									transactions: _krisajenkins$remotedata$RemoteData$Loading
 								}),
-							_1: A2(_bward$monzo_web$Main$loadTransactions, _p18._0, _p19)
+							_1: A2(_bward$monzo_web$Main$loadTransactions, _p11._0, _p12)
 						};
 					} else {
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
@@ -11179,19 +11108,19 @@ var _bward$monzo_web$Main$update = F2(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								account: _krisajenkins$remotedata$RemoteData$Failure(_p16._0._0)
+								account: _krisajenkins$remotedata$RemoteData$Failure(_p9._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'ShowTransactions':
-				if (_p16._0.ctor === 'Ok') {
+				if (_p9._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								transactions: _krisajenkins$remotedata$RemoteData$Success(_p16._0._0)
+								transactions: _krisajenkins$remotedata$RemoteData$Success(_p9._0._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11199,9 +11128,9 @@ var _bward$monzo_web$Main$update = F2(
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
 			case 'DetailTransaction':
-				var _p20 = _p16._0;
+				var _p13 = _p9._0;
 				var oldId = model.detailTransactionId;
-				var newId = _elm_lang$core$Native_Utils.eq(_p20, oldId) ? _elm_lang$core$Maybe$Nothing : _p20;
+				var newId = _elm_lang$core$Native_Utils.eq(_p13, oldId) ? _elm_lang$core$Maybe$Nothing : _p13;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -11243,9 +11172,9 @@ var _bward$monzo_web$Main$init = function (flags) {
 		_0: {
 			config: flags.config,
 			accessToken: function () {
-				var _p21 = flags.accessToken;
-				if (_p21.ctor === 'Just') {
-					return _krisajenkins$remotedata$RemoteData$Success(_p21._0);
+				var _p14 = flags.accessToken;
+				if (_p14.ctor === 'Just') {
+					return _krisajenkins$remotedata$RemoteData$Success(_p14._0);
 				} else {
 					return _krisajenkins$remotedata$RemoteData$Loading;
 				}
@@ -11257,21 +11186,21 @@ var _bward$monzo_web$Main$init = function (flags) {
 			transactionsPerPage: 30
 		},
 		_1: function () {
-			var _p22 = {ctor: '_Tuple2', _0: flags.accessToken, _1: flags.authorizationCode};
-			_v12_2:
+			var _p15 = {ctor: '_Tuple2', _0: flags.accessToken, _1: flags.authorizationCode};
+			_v9_2:
 			do {
-				if (_p22.ctor === '_Tuple2') {
-					if (_p22._0.ctor === 'Just') {
-						return _bward$monzo_web$Main$loadAccount(_p22._0._0);
+				if (_p15.ctor === '_Tuple2') {
+					if (_p15._0.ctor === 'Just') {
+						return _bward$monzo_web$Main$loadAccount(_p15._0._0);
 					} else {
-						if (_p22._1.ctor === 'Just') {
-							return A2(_bward$monzo_web$Main$exchangeCode, flags.config, _p22._1._0);
+						if (_p15._1.ctor === 'Just') {
+							return A2(_bward$monzo_web$Main$exchangeCode, flags.config, _p15._1._0);
 						} else {
-							break _v12_2;
+							break _v9_2;
 						}
 					}
 				} else {
-					break _v12_2;
+					break _v9_2;
 				}
 			} while(false);
 			return _elm_lang$core$Platform_Cmd$none;
@@ -11283,7 +11212,7 @@ var _bward$monzo_web$Main$main = _elm_lang$html$Html$programWithFlags(
 		init: _bward$monzo_web$Main$init,
 		view: _bward$monzo_web$Main$view,
 		update: _bward$monzo_web$Main$update,
-		subscriptions: function (_p23) {
+		subscriptions: function (_p16) {
 			return _elm_lang$core$Platform_Sub$none;
 		}
 	})(

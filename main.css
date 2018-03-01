@@ -68,12 +68,12 @@ body {
   margin: 2vw auto;
   filter: drop-shadow(0 0 10px #222);
   display: grid;
-  grid-template: "header          header      header" 8vh "top-controls    today       account" minmax(3vh, auto) "transactions    today       account" minmax(5vh, auto) "transactions    stats       stats" 20vh "transactions    .           ." auto "bottom-controls .           ." auto/3fr 1fr 1fr;
+  grid-template: "header          header      header" 8vh "top-controls    today       account" 3vh "transactions    today       account" minmax(5vh, auto) "transactions    stats       stats" 20vh "transactions    .           ." auto "bottom-controls .           ." 3vh/3fr 1fr 1fr;
   grid-gap: 2vh; }
   @media (max-width: 1300px) {
     #wrapper {
       width: 85vw;
-      grid-template: "header           header" 8vh "today            account" auto "top-controls     top-controls" minmax(3vh, auto) "transactions     transactions" auto "bottom-controls  bottom-controls" minmax(3vh, auto) "stats            stats" auto/1fr 1fr; } }
+      grid-template: "header           header"            5vh "today            account"           auto "top-controls     top-controls"      3vh "transactions     transactions"      auto "bottom-controls  bottom-controls"   3vh "stats            stats"             auto / 1fr              1fr; } }
   @media (min-width: 1301px) and (max-width: 1800px) {
     #wrapper {
       width: 85vw; } }
@@ -126,11 +126,8 @@ body {
   border-radius: 8px;
   display: flex;
   padding: 5px 5px; }
-  #top-controls .range {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center; }
+  #top-controls .spacer {
+    flex-grow: 1; }
 
 #bottom-controls {
   grid-area: bottom-controls;
@@ -138,11 +135,8 @@ body {
   border-radius: 8px;
   display: flex;
   padding: 5px 5px; }
-  #bottom-controls .range {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center; }
+  #bottom-controls .spacer {
+    flex-grow: 1; }
 
 .loader {
   border: 4px solid #eee;
