@@ -209,27 +209,73 @@ loader =
     [ div [ class "loader" ] [] ]
 
 
+mapTuple : (a -> b) -> ( a, a ) -> ( b, b )
+mapTuple f ( x, y ) =
+    ( f x, f y )
+
+
 renderControls : Model -> List (Html Msg)
 renderControls model =
-    [ if model.page > 0 then
-        button [ onClick Forward ] [ text "⟵" ]
-      else
-        text ""
-    , div [ class "spacer" ] []
-    , let
+    let
+        ( startDate, endDate ) =
+            case model.transactions of
+                Success transactions ->
+                    ( transactions
+                        |> List.drop (model.transactionsPerPage * model.page)
+                    , transactions
+                        |> List.drop (model.transactionsPerPage * model.page)
+                        |> List.take model.transactionsPerPage
+                        |> List.reverse
+                    )
+                        |> mapTuple
+                            (List.head
+                                >> Maybe.map Data.Transaction.formatDate
+                            )
+
+                _ ->
+                    ( Nothing, Nothing )
+
+        dateRange =
+            case ( startDate, endDate ) of
+                ( Just start, Just end ) ->
+                    start ++ " - " ++ end
+
+                ( Just start, _ ) ->
+                    start
+
+                _ ->
+                    ""
+
         maxPages =
             case model.transactions of
                 Success txs ->
-                    (List.length txs) // 30
+                    (List.length txs) // model.transactionsPerPage
 
                 _ ->
                     0
-      in
-        if model.page < maxPages then
-            button [ onClick Backward ] [ text "⟶" ]
-        else
-            text ""
-    ]
+    in
+        [ button
+            [ onClick Forward
+            , style
+                (if model.page > 0 then
+                    []
+                 else
+                    [ ( "visibility", "hidden" ) ]
+                )
+            ]
+            [ text "⟵" ]
+        , div [ class "range" ] [ text dateRange ]
+        , button
+            [ onClick Backward
+            , style
+                (if model.page < maxPages then
+                    []
+                 else
+                    [ ( "visibility", "hidden" ) ]
+                )
+            ]
+            [ text "⟶" ]
+        ]
 
 
 renderAccount : AccountInfo -> List (Html Msg)

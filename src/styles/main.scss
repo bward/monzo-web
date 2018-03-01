@@ -29,7 +29,7 @@ body {
 
     @media (max-width: 1300px) {
         width: 85vw;
-        grid-template: "header           header"            5vh
+        grid-template: "header           header"            8vh
                        "today            account"           auto
                        "top-controls     top-controls"      minmax(3vh, auto)
                        "transactions     transactions"      auto
@@ -86,7 +86,12 @@ body {
     display: flex;
     padding: 5px 5px;
 
-    .spacer { flex-grow: 1; }
+    .range {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 #top-controls {
