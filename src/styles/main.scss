@@ -19,11 +19,11 @@ body {
 
     display: grid;
     grid-template: "header          header      header"     8vh
-                   "top-controls    today       account"    3vh
+                   "top-controls    today       account"    minmax(3vh, auto)
                    "transactions    today       account"    minmax(5vh, auto)
                    "transactions    stats       stats"      20vh
                    "transactions    .           ."          auto
-                   "bottom-controls .           ."          3vh
+                   "bottom-controls .           ."          auto
                   / 3fr           1fr         1fr;
     grid-gap: 2vh;
 
@@ -31,9 +31,9 @@ body {
         width: 85vw;
         grid-template: "header           header"            5vh
                        "today            account"           auto
-                       "top-controls     top-controls"      3vh
+                       "top-controls     top-controls"      minmax(3vh, auto)
                        "transactions     transactions"      auto
-                       "bottom-controls  bottom-controls"   3vh
+                       "bottom-controls  bottom-controls"   minmax(3vh, auto)
                        "stats            stats"             auto
                       / 1fr              1fr
     }
